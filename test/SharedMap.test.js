@@ -2,8 +2,12 @@ import SharedMap from '../src/SharedMap.js'
 
 describe('SharedMap', () => {
   beforeEach(function () {
+    this.listeners = {}
     this.socket = {
-      writeEvent: sinon.fake()
+      writeEvent: sinon.fake(),
+      on: (eventName, callback) => {
+        this.listeners[eventName] = callback
+      }
     }
     this.map = new SharedMap(this.socket)
   })
@@ -34,15 +38,39 @@ describe('SharedMap', () => {
 
     expect(this.socket.writeEvent.callCount).to.equal(1)
   })
-  it('should not emit delete event if entry does not exists', function() {
+  it('should not emit delete event if entry does not exists', function () {
     this.map.delete('color')
 
     expect(this.socket.writeEvent.callCount).to.equal(0)
   })
   it('should throw error if type of key is not allowed one', function () {
-    expect(() => this.map.set(() => {}, 'hello')).to.throw()
+    expect(() => this.map.set(() => { }, 'hello')).to.throw()
   })
   it('should throw error if type of value is not allowed one', function () {
-    expect(() => this.map.set('hello', () => {})).to.throw()
+    expect(() => this.map.set('hello', () => { })).to.throw()
+  })
+  it('should set map value and emit remote-set event on receiving set event', function (done) {
+    const payload = { key: 'hello', value: 'world' }
+    this.map.on('remote-set', evt => {
+      expect(payload).to.deep.equal(evt)
+      done()
+    })
+
+    const callback = this.listeners.set
+    callback(payload)
+
+    expect(this.map.get('hello')).to.equal('world')
+  })
+  it('should emit remote-delete vent on receiving delete event', function (done) {
+    this.map.set('hello', 'world')
+    this.map.on('remote-set', evt => {
+      expect('hello').to.deep.equal(evt)
+      done()
+    })
+
+    const callback = this.listeners.set
+    callback('hello')
+
+    expect(this.map.has('hello')).to.equal(false)
   })
 })

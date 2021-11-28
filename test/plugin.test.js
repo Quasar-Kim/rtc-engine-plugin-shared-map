@@ -3,7 +3,7 @@ import SharedMap from '../src/SharedMap.js'
 
 class RTCEngine {
   socket (label) {
-    return { label }
+    return { label, on () {} }
   }
 
   static plugin (plugin) {

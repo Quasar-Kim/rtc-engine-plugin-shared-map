@@ -1,9 +1,20 @@
+import Mitt from './Mitt.js'
+
 const allowedTypes = ['string', 'object', 'boolean', 'number', 'undefined']
 
-export default class SharedMap extends Map {
+// Mitt에서 Map을 확장함
+export default class SharedMap extends Mitt {
   constructor (socket) {
     super()
     this.socket = socket
+
+    this.socket.on('set', evt => {
+      super.set(evt.key, evt.value)
+      this.emit('remote-set', evt)
+    })
+    this.socket.on('delete', key => {
+      super.delete(key)
+    })
   }
 
   set (key, value) {

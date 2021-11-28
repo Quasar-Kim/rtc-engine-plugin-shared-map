@@ -16,5 +16,7 @@ module.exports = {
     sourceType: 'module'
   },
   rules: {
+    'array-callback-return': 'off',
+    'node/no-callback-literal': 'off'
   }
 }
