@@ -1,4 +1,4 @@
-import Mitt from './Mitt.js'
+import { Mitt } from 'rtc-engine'
 
 const allowedTypes = ['string', 'object', 'boolean', 'number', 'undefined']
 
