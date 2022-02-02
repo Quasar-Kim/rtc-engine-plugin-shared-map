@@ -57,20 +57,18 @@ describe('SharedMap', () => {
     })
 
     const callback = this.listeners.set
-    callback(payload)
+    callback(JSON.stringify(payload))
 
     expect(this.map.get('hello')).to.equal('world')
   })
-  it('should emit remote-delete vent on receiving delete event', function (done) {
+  it('should emit remote-delete event on receiving delete event', function (done) {
     this.map.set('hello', 'world')
-    this.map.on('remote-set', evt => {
-      expect('hello').to.deep.equal(evt)
+    this.map.on('remote-delete', evt => {
+      expect(this.map.has('hello')).to.equal(false)
       done()
     })
 
-    const callback = this.listeners.set
+    const callback = this.listeners.delete
     callback('hello')
-
-    expect(this.map.has('hello')).to.equal(false)
   })
 })
